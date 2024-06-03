@@ -1,0 +1,31 @@
+name: Replace Spaces with Dashes
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      inputString:
+        description: 'The string to replace spaces with dashes 示例输入：13253 31984 12348'
+        required: true
+        default: ''
+
+jobs:
+  replace-spaces:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      
+      - name: Run replace_spaces.py
+        run: python replace_spaces.py ${{ github.event.inputs.inputString }}
