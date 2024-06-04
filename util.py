@@ -20,6 +20,20 @@ def get_cfg(section: str, key: str):
     parser.read('./config.ini', encoding='utf-8')
     return dict(parser.items(section))[key]
 
+def export_leadborad(comics):
+    filtered_comics = []
+
+    for comic in comics:
+        filtered_comics.append({
+            '_id': comic['_id'],
+            'title': comic['title'],
+            'author': comic['author'],
+            'categories': ', '.join(comic['categories'])
+        })
+
+    df = pd.DataFrame(filtered_comics)
+    df.to_excel('comics.xlsx', index=False)
+
 def export_comic_list(comics):
     filtered_comics = []
 

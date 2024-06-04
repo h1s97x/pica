@@ -8,9 +8,11 @@ on:
     inputs:
 
 env:
-  PICA_SECRET_KEY: ${{secrets.PICA_SECRET_KEY && '~d}$Q7$eIni=V)9\\RK/P.RM4;9[7|@/CA}b~OW!3?EV`:<>M7pddUBL5n|0/*Cn' }}
   PICA_ACCOUNT: ${{secrets.PICA_ACCOUNT}}
   PICA_PASSWORD: ${{secrets.PICA_PASSWORD}}
+  PICA_TOKEN: ${{secrets.PICA_TOKEN}}
+  PICA_SECRET_KEY: ${{secrets.PICA_SECRET_KEY && '~d}$Q7$eIni=V)9\\RK/P.RM4;9[7|@/CA}b~OW!3?EV`:<>M7pddUBL5n|0/*Cn' }}
+
 
 jobs:
   main:
@@ -29,21 +31,19 @@ jobs:
       - name: main logic
         run: |
           python login.py
-          echo "登录成功" >> login.txt
 
-      # comics文件夹下的所有漫画都会被打成一个压缩包,并上传到actions artifact. 如果不配置邮箱推送功能,可以用这个来下载到漫画
       - name: upload-artifact
         uses: actions/upload-artifact@v3.1.0
         with:
-          name: pica-comics
-          path: comics/
+          name: token
+          path: /
           # 压缩包14天后会被清除
           retention-days: 14
       
-      - name: commit & push
-        uses: actions-go/push@master
-        with:
-          author-email: 'actions@github.com'
-          author-name: 'GitHub Actions'
-          commit-message: 'update downloaded comics'
-          token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: commit & push
+      #   uses: actions-go/push@master
+      #   with:
+      #     author-email: 'actions@github.com'
+      #     author-name: 'GitHub Actions'
+      #     commit-message: 'update downloaded comics'
+      #     token: ${{ secrets.GITHUB_TOKEN }}

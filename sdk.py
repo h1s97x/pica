@@ -15,6 +15,8 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 base = "https://picaapi.picacomic.com/"
 
 PICA_SECRET_KEY = os.environ.get("PICA_SECRET_KEY")
+print(PICA_SECRET_KEY)
+PICA_TOKEN = os.environ.get("PICA_TOKEN") or None
 
 class Pica:
     Order = {
@@ -26,7 +28,7 @@ class Pica:
     }
 
     def __init__(self):
-        '''
+        """
         哔咔请求头：
         固定值
         api-key C69BAF41DA5ABD1FFEDC6D2FEA56B
@@ -39,16 +41,15 @@ class Pica:
         User-Agent okhttp/3.8.1
         image-quality original // 哔咔返回的图片质量，可选：original(原图),low,medium,high
         ContentType application/json; charset=UTF-8
-        '''
+        """
         self.api = requests.Session()
-        self.token = None
 
         parser = ConfigParser()
         parser.read('./config.ini', encoding='utf-8')
         self.headers = dict(parser.items('header'))
         
     def http_do(self, method, url, **kwargs):
-        '''
+        """
         哔咔请求头
 
         随机值
@@ -66,7 +67,7 @@ class Pica:
         :param url: 请求地址
         :param kwargs: 其他参数
         :return: 返回请求结果
-        '''
+        """
         kwargs.setdefault("allow_redirects", True)
         header = self.headers.copy()
         ts = str(int(time()))
@@ -85,24 +86,25 @@ class Pica:
         return response
 
     def login(self, account, password):
-        '''
+        """
         登录
         :param account: 账号
         :param password: 密码
-        '''
+        """
         url = base + "auth/sign-in"
         data = {
             'email': account,
             'password': password
         }
-        response = self.http_do("POST", url=url, json=send).text
+        response = self.http_do("POST", url=url, json=data).text
         print("login response:{}".format(response), flush=True)
         if json.loads(response)["code"] != 200:
             raise Exception('PICA_ACCOUNT/PICA_PASSWORD ERROR')
-        if 'token' not in res:
+        if 'token' not in response:
             raise Exception('PICA_SECRET_KEY ERROR')
+
         self.headers["authorization"] = json.loads(response)["data"]["token"]
-        # self.token = response['token']
+        
 
     def comics(self, block="", tag="", order="", page=1):
         args = []
@@ -157,7 +159,7 @@ class Pica:
         url = f"{base}comics/{book_id}/order/{ep_id}/pages?page={page}"
         return self.http_do("GET", url=url)
 
-    def search(self, keyword, page=1, sort=Order_Latest):
+    def search(self, keyword, page=1, sort=Order.get('default')):
         url = f"{base}comics/advanced-search?page={page}"
         res = self.http_do("POST", url=url, json={"keyword": keyword, "sort": sort})
         return json.loads(res.content.decode("utf-8"))["data"]["comics"]
